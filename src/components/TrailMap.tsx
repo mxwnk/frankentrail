@@ -33,9 +33,29 @@ const POI_ICONS: Record<PoiCategory, string> = {
     <line x1="10" y1="11" x2="13" y2="11" stroke="#faf4e8" stroke-width="1.5" stroke-linecap="round"/>
     <path d="M17 8V11C17 11 19 11.5 19 13.5C19 15.5 17 16 17 16V21" stroke="#faf4e8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
   </svg>`,
-  supplies: `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  supermarket: `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="14" cy="14" r="13" fill="#8b6531" stroke="#faf4e8" stroke-width="2"/>
-    <rect x="8" y="10" width="12" height="10" rx="1.5" stroke="#faf4e8" stroke-width="1.8" fill="none"/>
+    <path d="M8 9H10L11.5 17H18.5L20 11H12" stroke="#faf4e8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="12.5" cy="19.5" r="1.2" fill="#faf4e8"/>
+    <circle cx="17.5" cy="19.5" r="1.2" fill="#faf4e8"/>
+  </svg>`,
+  bakery: `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="14" cy="14" r="13" fill="#b5651d" stroke="#faf4e8" stroke-width="2"/>
+    <ellipse cx="14" cy="15" rx="6" ry="4" fill="#faf4e8" opacity="0.9"/>
+    <path d="M10 13C10 13 11.5 10 14 10C16.5 10 18 13 18 13" stroke="#faf4e8" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <line x1="12" y1="15" x2="12" y2="13.5" stroke="#b5651d" stroke-width="1" stroke-linecap="round"/>
+    <line x1="14" y1="15" x2="14" y2="13" stroke="#b5651d" stroke-width="1" stroke-linecap="round"/>
+    <line x1="16" y1="15" x2="16" y2="13.5" stroke="#b5651d" stroke-width="1" stroke-linecap="round"/>
+  </svg>`,
+  butcher: `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="14" cy="14" r="13" fill="#a0522d" stroke="#faf4e8" stroke-width="2"/>
+    <path d="M9 11L13 9L19 13L17 19L11 19Z" fill="#faf4e8" opacity="0.85"/>
+    <circle cx="14" cy="14.5" r="1.5" fill="#a0522d"/>
+    <line x1="13" y1="19" x2="12" y2="22" stroke="#faf4e8" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>`,
+  convenience: `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="14" cy="14" r="13" fill="#6b7c3e" stroke="#faf4e8" stroke-width="2"/>
+    <rect x="9" y="10" width="10" height="10" rx="1.5" stroke="#faf4e8" stroke-width="1.8" fill="none"/>
     <path d="M11 10V8.5C11 7.67 11.67 7 12.5 7H15.5C16.33 7 17 7.67 17 8.5V10" stroke="#faf4e8" stroke-width="1.8" stroke-linecap="round"/>
     <line x1="14" y1="13" x2="14" y2="17" stroke="#faf4e8" stroke-width="1.5" stroke-linecap="round"/>
     <line x1="12" y1="15" x2="16" y2="15" stroke="#faf4e8" stroke-width="1.5" stroke-linecap="round"/>
@@ -283,7 +303,10 @@ function createPoiPopup(poi: PoiData): maplibregl.Popup {
     shelter: "Schutzhütte",
     water: "Trinkwasser",
     food: "Einkehr",
-    supplies: "Versorgung",
+    supermarket: "Supermarkt",
+    bakery: "Bäckerei",
+    butcher: "Metzgerei",
+    convenience: "Laden",
   };
   const categoryLabel = categoryLabels[poi.category];
   const coords = `${poi.lat.toFixed(6)}, ${poi.lon.toFixed(6)}`;

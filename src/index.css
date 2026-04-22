@@ -277,8 +277,20 @@ body,
   background: var(--wine);
 }
 
-.poi-toggle--supplies .poi-toggle__dot {
+.poi-toggle--supermarket .poi-toggle__dot {
   background: var(--sandstone-dark);
+}
+
+.poi-toggle--bakery .poi-toggle__dot {
+  background: #b5651d;
+}
+
+.poi-toggle--butcher .poi-toggle__dot {
+  background: #a0522d;
+}
+
+.poi-toggle--convenience .poi-toggle__dot {
+  background: #6b7c3e;
 }
 
 .poi-toggle__label {
@@ -300,6 +312,27 @@ body,
   box-shadow: 0 4px 16px rgba(42, 31, 20, 0.3) !important;
   padding: 10px 14px !important;
   font-family: var(--font-body);
+}
+
+.maplibregl-popup-close-button {
+  font-size: 18px !important;
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: var(--sandstone-dark) !important;
+  border-radius: 4px !important;
+  top: 4px !important;
+  right: 4px !important;
+  transition: background 0.15s, color 0.15s;
+}
+
+.maplibregl-popup-close-button:hover {
+  background: var(--sandstone-light) !important;
+  color: var(--ink) !important;
 }
 
 .maplibregl-popup-tip {
@@ -331,8 +364,20 @@ body,
   color: var(--wine);
 }
 
-.poi-popup__category--supplies {
+.poi-popup__category--supermarket {
   color: var(--sandstone-dark);
+}
+
+.poi-popup__category--bakery {
+  color: #b5651d;
+}
+
+.poi-popup__category--butcher {
+  color: #a0522d;
+}
+
+.poi-popup__category--convenience {
+  color: #6b7c3e;
 }
 
 .poi-popup__name {

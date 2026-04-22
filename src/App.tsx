@@ -2,18 +2,52 @@ import { useMemo, useState } from "react";
 import { TrailMap } from "./components/TrailMap";
 import { useGpxTrack } from "./hooks/useGpxTrack";
 import { useGeolocation } from "./hooks/useGeolocation";
-import { SHELTER_POIS, WATER_POIS, FOOD_POIS, SUPPLIES_POIS } from "./data/pois";
+import {
+  SHELTER_POIS,
+  WATER_POIS,
+  FOOD_POIS,
+  SUPERMARKET_POIS,
+  BAKERY_POIS,
+  BUTCHER_POIS,
+  CONVENIENCE_POIS,
+} from "./data/pois";
 import type { PoiCategory } from "./data/types";
 
 const GPX_PATH = "/gpx/frankentrail.gpx";
 
-const ALL_POIS = [...SHELTER_POIS, ...WATER_POIS, ...FOOD_POIS, ...SUPPLIES_POIS];
+const ALL_POIS = [
+  ...SHELTER_POIS,
+  ...WATER_POIS,
+  ...FOOD_POIS,
+  ...SUPERMARKET_POIS,
+  ...BAKERY_POIS,
+  ...BUTCHER_POIS,
+  ...CONVENIENCE_POIS,
+];
+
+interface PoiToggleConfig {
+  category: PoiCategory;
+  label: string;
+  count: number;
+}
+
+const POI_TOGGLE_CONFIGS: PoiToggleConfig[] = [
+  { category: "shelter", label: "Shelter", count: SHELTER_POIS.length },
+  { category: "water", label: "Wasser", count: WATER_POIS.length },
+  { category: "food", label: "Einkehr", count: FOOD_POIS.length },
+  { category: "supermarket", label: "Supermarkt", count: SUPERMARKET_POIS.length },
+  { category: "bakery", label: "Bäckerei", count: BAKERY_POIS.length },
+  { category: "butcher", label: "Metzgerei", count: BUTCHER_POIS.length },
+  { category: "convenience", label: "Laden", count: CONVENIENCE_POIS.length },
+];
+
+const DEFAULT_VISIBLE: PoiCategory[] = ["shelter", "water"];
 
 function App() {
   const { trackData, isLoading, error } = useGpxTrack(GPX_PATH);
   const { position, error: geoError } = useGeolocation();
   const [visibleCategories, setVisibleCategories] = useState<Set<PoiCategory>>(
-    new Set(["shelter", "water", "food", "supplies"])
+    new Set(DEFAULT_VISIBLE)
   );
 
   const toggleCategory = (category: PoiCategory) => {
@@ -41,41 +75,23 @@ function App() {
 
       <header className="header">
         <div className="header-brand">
-          <img src="/favicon.svg" alt="Frankenflagge" className="header-icon" width="28" height="28" />
+          <span className="header-icon">&#9650;</span>
           <h1 className="header-title">frankentrail</h1>
         </div>
         <p className="header-subtitle">Frankenweg Fernwanderweg</p>
       </header>
 
       <div className="poi-controls">
-        <PoiToggle
-          category="shelter"
-          label="Shelter"
-          count={SHELTER_POIS.length}
-          isActive={visibleCategories.has("shelter")}
-          onToggle={toggleCategory}
-        />
-        <PoiToggle
-          category="water"
-          label="Wasser"
-          count={WATER_POIS.length}
-          isActive={visibleCategories.has("water")}
-          onToggle={toggleCategory}
-        />
-        <PoiToggle
-          category="food"
-          label="Einkehr"
-          count={FOOD_POIS.length}
-          isActive={visibleCategories.has("food")}
-          onToggle={toggleCategory}
-        />
-        <PoiToggle
-          category="supplies"
-          label="Versorgung"
-          count={SUPPLIES_POIS.length}
-          isActive={visibleCategories.has("supplies")}
-          onToggle={toggleCategory}
-        />
+        {POI_TOGGLE_CONFIGS.map((config) => (
+          <PoiToggle
+            key={config.category}
+            category={config.category}
+            label={config.label}
+            count={config.count}
+            isActive={visibleCategories.has(config.category)}
+            onToggle={toggleCategory}
+          />
+        ))}
       </div>
 
       {isLoading && (

@@ -5,4 +5,11 @@ export interface PoiData {
   category: PoiCategory;
 }
 
-export type PoiCategory = "shelter" | "water" | "food" | "supplies";
+export type PoiCategory =
+  | "shelter"
+  | "water"
+  | "food"
+  | "supermarket"
+  | "bakery"
+  | "butcher"
+  | "convenience";
