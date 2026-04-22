@@ -1,0 +1,366 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap");
+
+:root {
+  /* Franconian palette — sandstone, forest, wine-red */
+  --sandstone: #d4a96a;
+  --sandstone-light: #f0dfc0;
+  --sandstone-dark: #8b6531;
+  --forest: #2d5016;
+  --forest-muted: #4a6e35;
+  --wine: #8b1a2b;
+  --wine-deep: #5a1a0a;
+  --parchment: #faf4e8;
+  --ink: #2a1f14;
+
+  --water: #1a6fa0;
+
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+
+  --header-height: 72px;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--ink);
+}
+
+/* ── App layout ────────────────────────────────── */
+
+.app {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Map ───────────────────────────────────────── */
+
+.trail-map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Override MapLibre controls to match theme */
+.maplibregl-ctrl-group {
+  background: var(--parchment) !important;
+  border: 1px solid var(--sandstone) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(42, 31, 20, 0.25) !important;
+}
+
+.maplibregl-ctrl-group button {
+  border-bottom: 1px solid var(--sandstone-light) !important;
+}
+
+.maplibregl-ctrl-group button:hover {
+  background-color: var(--sandstone-light) !important;
+}
+
+.maplibregl-ctrl-scale {
+  background: rgba(250, 244, 232, 0.85) !important;
+  border-color: var(--sandstone-dark) !important;
+  color: var(--ink) !important;
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+}
+
+/* ── Header ────────────────────────────────────── */
+
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(42, 31, 20, 0.88) 0%,
+    rgba(42, 31, 20, 0.6) 70%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 5;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.header-icon {
+  font-size: 18px;
+  color: var(--sandstone);
+  line-height: 1;
+}
+
+.header-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  color: var(--parchment);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.header-subtitle {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--sandstone);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+/* ── Toast messages ────────────────────────────── */
+
+.toast {
+  position: absolute;
+  top: calc(var(--header-height) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 4px;
+  border-left: 3px solid var(--sandstone-dark);
+  box-shadow: 0 2px 12px rgba(42, 31, 20, 0.3);
+  z-index: 10;
+  pointer-events: none;
+  animation: toast-in 0.4s ease-out;
+}
+
+.toast--error {
+  border-left-color: var(--wine);
+  color: var(--wine);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ── Attribution badge ─────────────────────────── */
+
+.attribution-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(250, 244, 232, 0.75);
+  backdrop-filter: blur(4px);
+  padding: 4px 12px;
+  border-radius: 3px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--sandstone-dark);
+  letter-spacing: 0.5px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* ── Responsive ────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .header {
+    padding: 0 16px;
+    height: 56px;
+  }
+
+  .header-title {
+    font-size: 18px;
+  }
+
+  .header-subtitle {
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  :root {
+    --header-height: 56px;
+  }
+
+  .poi-controls {
+    top: auto;
+    bottom: 48px;
+    left: 12px;
+    right: auto;
+  }
+}
+
+/* ── POI toggle controls ───────────────────────── */
+
+.poi-controls {
+  position: absolute;
+  top: calc(var(--header-height) + 8px);
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 6;
+}
+
+.poi-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid var(--sandstone);
+  border-radius: 4px;
+  background: rgba(250, 244, 232, 0.85);
+  backdrop-filter: blur(4px);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.55;
+  box-shadow: 0 1px 4px rgba(42, 31, 20, 0.15);
+}
+
+.poi-toggle--active {
+  opacity: 1;
+}
+
+.poi-toggle:hover {
+  background: var(--parchment);
+  box-shadow: 0 2px 8px rgba(42, 31, 20, 0.25);
+}
+
+.poi-toggle__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.poi-toggle--shelter .poi-toggle__dot {
+  background: var(--forest);
+}
+
+.poi-toggle--water .poi-toggle__dot {
+  background: var(--water);
+}
+
+.poi-toggle__label {
+  flex: 1;
+}
+
+.poi-toggle__count {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--sandstone-dark);
+}
+
+/* ── POI popups ────────────────────────────────── */
+
+.maplibregl-popup-content {
+  background: var(--parchment) !important;
+  border: 1px solid var(--sandstone) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 16px rgba(42, 31, 20, 0.3) !important;
+  padding: 10px 14px !important;
+  font-family: var(--font-body);
+}
+
+.maplibregl-popup-tip {
+  border-top-color: var(--parchment) !important;
+}
+
+.poi-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.poi-popup__category {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.poi-popup__category--shelter {
+  color: var(--forest);
+}
+
+.poi-popup__category--water {
+  color: var(--water);
+}
+
+.poi-popup__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.poi-popup__coords {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--sandstone-light);
+}
+
+.poi-popup__coords-value {
+  font-size: 12px;
+  font-family: "SF Mono", "Fira Code", monospace;
+  color: var(--sandstone-dark);
+  letter-spacing: -0.2px;
+}
+
+.poi-popup__copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--sandstone);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--sandstone-dark);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.poi-popup__copy:hover {
+  background: var(--sandstone-light);
+  color: var(--ink);
+}
+
+.poi-popup__copy--done {
+  color: var(--forest);
+  border-color: var(--forest-muted);
+}
