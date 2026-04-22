@@ -386,6 +386,22 @@ body,
   color: var(--ink);
 }
 
+.poi-popup__hours {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--forest-muted);
+  line-height: 1.4;
+}
+
+.poi-popup__hours-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--forest-muted);
+}
+
 .poi-popup__coords {
   display: flex;
   align-items: center;

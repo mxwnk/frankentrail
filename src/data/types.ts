@@ -3,6 +3,7 @@ export interface PoiData {
   lon: number;
   name: string;
   category: PoiCategory;
+  openingHours?: string;
 }
 
 export type PoiCategory =

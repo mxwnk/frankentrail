@@ -311,10 +311,18 @@ function createPoiPopup(poi: PoiData): maplibregl.Popup {
   const categoryLabel = categoryLabels[poi.category];
   const coords = `${poi.lat.toFixed(6)}, ${poi.lon.toFixed(6)}`;
   const copyId = `copy-btn-${poi.lat}-${poi.lon}`.replace(/\./g, "_");
+  const openingHoursHtml = poi.openingHours
+    ? `<div class="poi-popup__hours">
+        <svg class="poi-popup__hours-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>${poi.openingHours}</span>
+      </div>`
+    : "";
   const html = `
     <div class="poi-popup">
       <span class="poi-popup__category poi-popup__category--${poi.category}">${categoryLabel}</span>
-      <strong class="poi-popup__name">${poi.name}</strong>
+      <strong class="poi-popup__name">${poi.name}</strong>${openingHoursHtml}
       <div class="poi-popup__coords">
         <span class="poi-popup__coords-value">${coords}</span>
         <button id="${copyId}" class="poi-popup__copy" title="Koordinaten kopieren">
