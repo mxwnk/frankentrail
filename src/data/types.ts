@@ -2,7 +2,7 @@ export interface PoiData {
   lat: number;
   lon: number;
   name: string;
-  category: "shelter" | "water";
+  category: PoiCategory;
 }
 
-export type PoiCategory = PoiData["category"];
+export type PoiCategory = "shelter" | "water" | "food" | "supplies";

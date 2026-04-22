@@ -27,6 +27,19 @@ const POI_ICONS: Record<PoiCategory, string> = {
     <circle cx="14" cy="14" r="13" fill="#1a6fa0" stroke="#faf4e8" stroke-width="2"/>
     <path d="M14 8C14 8 9 13.5 9 16.5C9 19.26 11.24 21 14 21C16.76 21 19 19.26 19 16.5C19 13.5 14 8 14 8Z" fill="#faf4e8" opacity="0.9"/>
   </svg>`,
+  food: `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="14" cy="14" r="13" fill="#8b1a2b" stroke="#faf4e8" stroke-width="2"/>
+    <path d="M10 8V13C10 14.66 11.34 16 13 16H13.5V21" stroke="#faf4e8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <line x1="10" y1="11" x2="13" y2="11" stroke="#faf4e8" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M17 8V11C17 11 19 11.5 19 13.5C19 15.5 17 16 17 16V21" stroke="#faf4e8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </svg>`,
+  supplies: `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="14" cy="14" r="13" fill="#8b6531" stroke="#faf4e8" stroke-width="2"/>
+    <rect x="8" y="10" width="12" height="10" rx="1.5" stroke="#faf4e8" stroke-width="1.8" fill="none"/>
+    <path d="M11 10V8.5C11 7.67 11.67 7 12.5 7H15.5C16.33 7 17 7.67 17 8.5V10" stroke="#faf4e8" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="14" y1="13" x2="14" y2="17" stroke="#faf4e8" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="12" y1="15" x2="16" y2="15" stroke="#faf4e8" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>`,
 };
 
 interface UserPosition {
@@ -266,7 +279,13 @@ function createPoiMarkerElement(poi: PoiData): HTMLDivElement {
 }
 
 function createPoiPopup(poi: PoiData): maplibregl.Popup {
-  const categoryLabel = poi.category === "shelter" ? "Schutzhütte" : "Trinkwasser";
+  const categoryLabels: Record<PoiCategory, string> = {
+    shelter: "Schutzhütte",
+    water: "Trinkwasser",
+    food: "Einkehr",
+    supplies: "Versorgung",
+  };
+  const categoryLabel = categoryLabels[poi.category];
   const coords = `${poi.lat.toFixed(6)}, ${poi.lon.toFixed(6)}`;
   const copyId = `copy-btn-${poi.lat}-${poi.lon}`.replace(/\./g, "_");
   const html = `

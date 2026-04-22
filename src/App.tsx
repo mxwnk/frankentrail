@@ -2,18 +2,18 @@ import { useMemo, useState } from "react";
 import { TrailMap } from "./components/TrailMap";
 import { useGpxTrack } from "./hooks/useGpxTrack";
 import { useGeolocation } from "./hooks/useGeolocation";
-import { SHELTER_POIS, WATER_POIS } from "./data/pois";
+import { SHELTER_POIS, WATER_POIS, FOOD_POIS, SUPPLIES_POIS } from "./data/pois";
 import type { PoiCategory } from "./data/types";
 
 const GPX_PATH = "/gpx/frankentrail.gpx";
 
-const ALL_POIS = [...SHELTER_POIS, ...WATER_POIS];
+const ALL_POIS = [...SHELTER_POIS, ...WATER_POIS, ...FOOD_POIS, ...SUPPLIES_POIS];
 
 function App() {
   const { trackData, isLoading, error } = useGpxTrack(GPX_PATH);
   const { position, error: geoError } = useGeolocation();
   const [visibleCategories, setVisibleCategories] = useState<Set<PoiCategory>>(
-    new Set(["shelter", "water"])
+    new Set(["shelter", "water", "food", "supplies"])
   );
 
   const toggleCategory = (category: PoiCategory) => {
@@ -60,6 +60,20 @@ function App() {
           label="Wasser"
           count={WATER_POIS.length}
           isActive={visibleCategories.has("water")}
+          onToggle={toggleCategory}
+        />
+        <PoiToggle
+          category="food"
+          label="Einkehr"
+          count={FOOD_POIS.length}
+          isActive={visibleCategories.has("food")}
+          onToggle={toggleCategory}
+        />
+        <PoiToggle
+          category="supplies"
+          label="Versorgung"
+          count={SUPPLIES_POIS.length}
+          isActive={visibleCategories.has("supplies")}
           onToggle={toggleCategory}
         />
       </div>

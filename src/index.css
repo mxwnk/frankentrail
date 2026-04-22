@@ -273,6 +273,14 @@ body,
   background: var(--water);
 }
 
+.poi-toggle--food .poi-toggle__dot {
+  background: var(--wine);
+}
+
+.poi-toggle--supplies .poi-toggle__dot {
+  background: var(--sandstone-dark);
+}
+
 .poi-toggle__label {
   flex: 1;
 }
@@ -317,6 +325,14 @@ body,
 
 .poi-popup__category--water {
   color: var(--water);
+}
+
+.poi-popup__category--food {
+  color: var(--wine);
+}
+
+.poi-popup__category--supplies {
+  color: var(--sandstone-dark);
 }
 
 .poi-popup__name {
