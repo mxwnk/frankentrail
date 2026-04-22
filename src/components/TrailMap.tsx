@@ -29,10 +29,10 @@ const POI_ICONS: Record<PoiCategory, string> = {
   </svg>`,
   food: `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="14" cy="14" r="13" fill="#8b1a2b" stroke="#faf4e8" stroke-width="2"/>
-    <path d="M10 7L10 11C10 12.1 10.9 13 12 13L12 21" stroke="#faf4e8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    <line x1="10" y1="7" x2="10" y2="11" stroke="#faf4e8" stroke-width="1.4" stroke-linecap="round"/>
-    <line x1="12" y1="7" x2="12" y2="11" stroke="#faf4e8" stroke-width="1.4" stroke-linecap="round"/>
-    <path d="M18 7V21M18 7C18 7 20 8 20 10.5C20 13 18 13 18 13" stroke="#faf4e8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M9 20L16 8M16 8L15 11C15 11 15.5 12 16 12" stroke="#faf4e8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M19 20L12 8" stroke="#faf4e8" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+    <line x1="11" y1="8" x2="13" y2="8" stroke="#faf4e8" stroke-width="1.4" stroke-linecap="round"/>
+    <line x1="11.5" y1="10" x2="13" y2="10" stroke="#faf4e8" stroke-width="1.4" stroke-linecap="round"/>
   </svg>`,
   supermarket: `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="14" cy="14" r="13" fill="#8b6531" stroke="#faf4e8" stroke-width="2"/>
