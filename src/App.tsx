@@ -41,7 +41,7 @@ function App() {
 
       <header className="header">
         <div className="header-brand">
-          <span className="header-icon">&#9650;</span>
+          <img src="/favicon.svg" alt="Frankenflagge" className="header-icon" width="28" height="28" />
           <h1 className="header-title">frankentrail</h1>
         </div>
         <p className="header-subtitle">Frankenweg Fernwanderweg</p>

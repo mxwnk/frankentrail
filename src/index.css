@@ -108,9 +108,10 @@ body,
 }
 
 .header-icon {
-  font-size: 18px;
-  color: var(--sandstone);
-  line-height: 1;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .header-title {
