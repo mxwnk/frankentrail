@@ -77,7 +77,7 @@ function App() {
 
       <header className="header">
         <div className="header-brand">
-          <span className="header-icon">&#9650;</span>
+          <img src="/favicon.svg" alt="Fränkischer Rechen" className="header-icon" />
           <h1 className="header-title">frankentrail</h1>
         </div>
         <p className="header-subtitle">Frankenweg Fernwanderweg</p>
