@@ -105,11 +105,14 @@ body,
   z-index: 5;
 }
 
+.header > * {
+  pointer-events: auto;
+}
+
 .header-brand {
   display: flex;
   align-items: center;
   gap: 8px;
-  pointer-events: auto;
 }
 
 .header-icon {
@@ -126,17 +129,6 @@ body,
   letter-spacing: 0.5px;
   color: var(--parchment);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-
-.header-subtitle {
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: 12px;
-  color: var(--sandstone);
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  opacity: 0.85;
-  white-space: nowrap;
 }
 
 /* ── Toast messages ────────────────────────────── */
@@ -199,9 +191,7 @@ body,
 /* ── Filter panel ──────────────────────────────── */
 
 .filter-panel {
-  position: absolute;
-  top: calc(var(--header-height) + var(--safe-top) + 8px);
-  right: 12px;
+  position: relative;
   z-index: 8;
 }
 
@@ -209,7 +199,7 @@ body,
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 6px 12px;
   border: 1px solid var(--sandstone);
   border-radius: 6px;
   background: rgba(250, 244, 232, 0.92);
@@ -517,19 +507,6 @@ body,
 
   .header-title {
     font-size: 17px;
-  }
-
-  .header-subtitle {
-    display: none;
-  }
-
-  .filter-panel {
-    top: calc(var(--safe-top) + 10px);
-    right: 10px;
-  }
-
-  .filter-panel__dropdown {
-    min-width: 170px;
   }
 
   .maplibregl-popup {

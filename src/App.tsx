@@ -80,47 +80,46 @@ function App() {
           <img src="/favicon.svg" alt="Fränkischer Rechen" className="header-icon" />
           <h1 className="header-title">frankentrail</h1>
         </div>
-        <p className="header-subtitle">Frankenweg Fernwanderweg</p>
-      </header>
 
-      <div className="filter-panel">
-        <button
-          className="filter-panel__trigger"
-          onClick={() => setIsFilterOpen((prev) => !prev)}
-          type="button"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="4" y1="6" x2="20" y2="6" />
-            <line x1="7" y1="12" x2="17" y2="12" />
-            <line x1="10" y1="18" x2="14" y2="18" />
-          </svg>
-          <span>Filter</span>
-          {activeCount > 0 && (
-            <span className="filter-panel__badge">{activeCount}</span>
+        <div className="filter-panel">
+          <button
+            className="filter-panel__trigger"
+            onClick={() => setIsFilterOpen((prev) => !prev)}
+            type="button"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="4" y1="6" x2="20" y2="6" />
+              <line x1="7" y1="12" x2="17" y2="12" />
+              <line x1="10" y1="18" x2="14" y2="18" />
+            </svg>
+            <span>Filter</span>
+            {activeCount > 0 && (
+              <span className="filter-panel__badge">{activeCount}</span>
+            )}
+          </button>
+
+          {isFilterOpen && (
+            <>
+              <div
+                className="filter-panel__backdrop"
+                onClick={() => setIsFilterOpen(false)}
+              />
+              <div className="filter-panel__dropdown">
+                {POI_TOGGLE_CONFIGS.map((config) => (
+                  <PoiToggle
+                    key={config.category}
+                    category={config.category}
+                    label={config.label}
+                    count={config.count}
+                    isActive={visibleCategories.has(config.category)}
+                    onToggle={toggleCategory}
+                  />
+                ))}
+              </div>
+            </>
           )}
-        </button>
-
-        {isFilterOpen && (
-          <>
-            <div
-              className="filter-panel__backdrop"
-              onClick={() => setIsFilterOpen(false)}
-            />
-            <div className="filter-panel__dropdown">
-              {POI_TOGGLE_CONFIGS.map((config) => (
-                <PoiToggle
-                  key={config.category}
-                  category={config.category}
-                  label={config.label}
-                  count={config.count}
-                  isActive={visibleCategories.has(config.category)}
-                  onToggle={toggleCategory}
-                />
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+        </div>
+      </header>
 
       {isLoading && (
         <div className="toast">Lade Frankenweg...</div>
