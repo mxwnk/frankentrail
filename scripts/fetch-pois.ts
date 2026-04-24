@@ -14,19 +14,24 @@ import { fileURLToPath } from "node:url";
 // ---------------------------------------------------------------------------
 
 const MAX_DISTANCE_METERS = 2000;
-const GPX_PATH = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "../public/gpx/frankentrail.gpx",
-);
-const OUTPUT_PATH = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "../src/data/pois.ts",
-);
 const OVERPASS_API = "https://overpass-api.de/api/interpreter";
+
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const GPX_PATH = resolve(SCRIPT_DIR, "../public/gpx/frankentrail.gpx");
+const OUTPUT_PATH = resolve(SCRIPT_DIR, "../src/data/pois.ts");
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+
+type PoiCategory =
+  | "shelter"
+  | "water"
+  | "food"
+  | "supermarket"
+  | "bakery"
+  | "butcher"
+  | "convenience";
 
 interface TrackPoint {
   lat: number;
@@ -37,8 +42,9 @@ interface PoiResult {
   lat: number;
   lon: number;
   name: string;
-  category: string;
+  category: PoiCategory;
   openingHours?: string;
+  website?: string;
 }
 
 interface OverpassElement {
@@ -49,12 +55,19 @@ interface OverpassElement {
   tags?: Record<string, string>;
 }
 
+interface BoundingBox {
+  south: number;
+  west: number;
+  north: number;
+  east: number;
+}
+
 // ---------------------------------------------------------------------------
 // Overpass category definitions
 // ---------------------------------------------------------------------------
 
 interface CategoryQuery {
-  category: string;
+  category: PoiCategory;
   filters: string[];
 }
 
@@ -101,6 +114,14 @@ const CATEGORY_QUERIES: CategoryQuery[] = [
     filters: ['nwr["shop"="convenience"]'],
   },
 ];
+
+/** Tags that indicate a POI is closed or inaccessible. */
+const EXCLUDED_TAG_PATTERNS: Record<string, string[]> = {
+  access: ["private", "no"],
+  disused: ["yes"],
+  "disused:amenity": [],
+  "disused:shop": [],
+};
 
 // ---------------------------------------------------------------------------
 // GPX parsing
@@ -149,11 +170,8 @@ function haversineDistance(a: TrackPoint, b: TrackPoint): number {
 }
 
 /**
- * Minimum distance from a point to the track, checking distance to each
- * segment (approximated as point-to-point for performance — the track has
- * dense points so this is accurate enough).
- *
- * To speed things up we downsample the track and do a coarse pre-filter.
+ * Minimum distance from a point to the track.
+ * Uses downsampled track points (dense enough for accurate results).
  */
 function minDistanceToTrack(
   point: TrackPoint,
@@ -192,7 +210,6 @@ function downsampleTrack(
     }
   }
 
-  // Always include last point
   if (result[result.length - 1] !== track[track.length - 1]) {
     result.push(track[track.length - 1]);
   }
@@ -203,35 +220,6 @@ function downsampleTrack(
 // ---------------------------------------------------------------------------
 // Overpass fetching
 // ---------------------------------------------------------------------------
-
-/**
- * Build an Overpass query using a bounding box.
- */
-function buildOverpassQuery(
-  bbox: BoundingBox,
-  categories: CategoryQuery[],
-): string {
-  const bboxStr = `${bbox.south},${bbox.west},${bbox.north},${bbox.east}`;
-
-  const unions = categories.flatMap((cat) =>
-    cat.filters.map((f) => `  ${f}(${bboxStr});`),
-  );
-
-  return [
-    "[out:json][timeout:60];",
-    "(",
-    ...unions,
-    ");",
-    "out center;",
-  ].join("\n");
-}
-
-interface BoundingBox {
-  south: number;
-  west: number;
-  north: number;
-  east: number;
-}
 
 function computeBoundingBox(
   track: TrackPoint[],
@@ -261,22 +249,28 @@ function computeBoundingBox(
   };
 }
 
-/** Split track into chunks of given size and return bounding boxes. */
-function splitTrackIntoChunks(
-  track: TrackPoint[],
-  chunkSize: number,
-  paddingMeters: number,
-): BoundingBox[] {
-  const boxes: BoundingBox[] = [];
-  for (let i = 0; i < track.length; i += chunkSize) {
-    const chunk = track.slice(i, i + chunkSize);
-    boxes.push(computeBoundingBox(chunk, paddingMeters));
-  }
-  return boxes;
+/** Build a single Overpass query for the entire bounding box. */
+function buildOverpassQuery(
+  bbox: BoundingBox,
+  categories: CategoryQuery[],
+): string {
+  const bboxStr = `${bbox.south},${bbox.west},${bbox.north},${bbox.east}`;
+
+  const unions = categories.flatMap((cat) =>
+    cat.filters.map((f) => `  ${f}(${bboxStr});`),
+  );
+
+  return [
+    "[out:json][timeout:120];",
+    "(",
+    ...unions,
+    ");",
+    "out center;",
+  ].join("\n");
 }
 
 /** Fetch with retry on rate limiting. */
-async function fetchOverpassWithRetry(
+async function fetchOverpass(
   query: string,
   maxRetries = 3,
 ): Promise<OverpassElement[]> {
@@ -293,8 +287,8 @@ async function fetchOverpassWithRetry(
 
     if (response.status === 429 && attempt < maxRetries) {
       const waitSeconds = 15 * (attempt + 1);
-      console.log(`    Rate limited, waiting ${waitSeconds}s before retry...`);
-      await new Promise((resolve) => setTimeout(resolve, waitSeconds * 1000));
+      console.log(`  Rate limited, waiting ${waitSeconds}s before retry...`);
+      await new Promise((r) => setTimeout(r, waitSeconds * 1000));
       continue;
     }
 
@@ -312,33 +306,11 @@ async function fetchOverpassWithRetry(
   throw new Error("Max retries exceeded");
 }
 
-/** Fetch POIs for multiple bounding boxes with rate limiting. */
-async function fetchAllChunks(
-  boxes: BoundingBox[],
-  categories: CategoryQuery[],
-): Promise<OverpassElement[]> {
-  const allElements: OverpassElement[] = [];
-
-  for (let i = 0; i < boxes.length; i++) {
-    console.log(`  Fetching chunk ${i + 1}/${boxes.length}...`);
-    const query = buildOverpassQuery(boxes[i], categories);
-    const elements = await fetchOverpassWithRetry(query);
-    allElements.push(...elements);
-
-    // Rate limit: wait 3s between requests
-    if (i < boxes.length - 1) {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-    }
-  }
-
-  return allElements;
-}
-
 // ---------------------------------------------------------------------------
 // Mapping Overpass elements → POIs
 // ---------------------------------------------------------------------------
 
-function resolveCategory(tags: Record<string, string>): string | null {
+function resolveCategory(tags: Record<string, string>): PoiCategory | null {
   if (tags.amenity === "shelter" || tags.tourism === "wilderness_hut" || tags.shelter_type === "basic_hut") return "shelter";
   if (tags.amenity === "drinking_water" || (tags.natural === "spring" && tags.drinking_water === "yes")) return "water";
   if (["restaurant", "cafe", "fast_food", "biergarten", "pub"].includes(tags.amenity ?? "")) return "food";
@@ -349,20 +321,37 @@ function resolveCategory(tags: Record<string, string>): string | null {
   return null;
 }
 
-function resolveName(tags: Record<string, string>, category: string): string {
-  if (tags.name) return tags.name;
+const CATEGORY_NAME_FALLBACKS: Record<PoiCategory, string> = {
+  shelter: "Schutzhütte",
+  water: "Trinkwasser",
+  food: "Gaststätte",
+  supermarket: "Supermarkt",
+  bakery: "Bäckerei",
+  butcher: "Metzgerei",
+  convenience: "Nahversorger",
+};
 
-  const fallbacks: Record<string, string> = {
-    shelter: "Schutzhütte",
-    water: "Trinkwasser",
-    food: "Gaststätte",
-    supermarket: "Supermarkt",
-    bakery: "Bäckerei",
-    butcher: "Metzgerei",
-    convenience: "Nahversorger",
-  };
+function resolveName(tags: Record<string, string>, category: PoiCategory): string {
+  return tags.name ?? CATEGORY_NAME_FALLBACKS[category];
+}
 
-  return fallbacks[category] ?? "Unbekannt";
+function resolveWebsite(tags: Record<string, string>): string | undefined {
+  return tags.website ?? tags["contact:website"];
+}
+
+/** Check if a POI should be excluded (closed, private, disused). */
+function isExcluded(tags: Record<string, string>): boolean {
+  for (const [key, allowedValues] of Object.entries(EXCLUDED_TAG_PATTERNS)) {
+    const tagValue = tags[key];
+    if (tagValue === undefined) continue;
+
+    // Empty allowedValues means any value of this tag triggers exclusion
+    if (allowedValues.length === 0 || allowedValues.includes(tagValue)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function elementsToPois(elements: OverpassElement[]): PoiResult[] {
@@ -370,6 +359,9 @@ function elementsToPois(elements: OverpassElement[]): PoiResult[] {
 
   for (const el of elements) {
     const tags = el.tags ?? {};
+
+    if (isExcluded(tags)) continue;
+
     const category = resolveCategory(tags);
     if (!category) continue;
 
@@ -377,12 +369,15 @@ function elementsToPois(elements: OverpassElement[]): PoiResult[] {
     const lon = el.lon ?? el.center?.lon;
     if (lat === undefined || lon === undefined) continue;
 
+    const website = resolveWebsite(tags);
+
     pois.push({
       lat: Math.round(lat * 1_000_000) / 1_000_000,
       lon: Math.round(lon * 1_000_000) / 1_000_000,
       name: resolveName(tags, category),
       category,
       ...(tags.opening_hours ? { openingHours: tags.opening_hours } : {}),
+      ...(website ? { website } : {}),
     });
   }
 
@@ -407,8 +402,44 @@ function deduplicatePois(pois: PoiResult[]): PoiResult[] {
 // Code generation
 // ---------------------------------------------------------------------------
 
+const CATEGORY_ORDER: PoiCategory[] = [
+  "shelter",
+  "water",
+  "food",
+  "supermarket",
+  "bakery",
+  "butcher",
+  "convenience",
+];
+
+const CONST_NAME_MAP: Record<PoiCategory, string> = {
+  shelter: "SHELTER_POIS",
+  water: "WATER_POIS",
+  food: "FOOD_POIS",
+  supermarket: "SUPERMARKET_POIS",
+  bakery: "BAKERY_POIS",
+  butcher: "BUTCHER_POIS",
+  convenience: "CONVENIENCE_POIS",
+};
+
+function formatPoiEntry(poi: PoiResult): string {
+  const parts = [
+    `lat: ${poi.lat}`,
+    `lon: ${poi.lon}`,
+    `name: ${JSON.stringify(poi.name)}`,
+    `category: "${poi.category}"`,
+  ];
+  if (poi.openingHours) {
+    parts.push(`openingHours: ${JSON.stringify(poi.openingHours)}`);
+  }
+  if (poi.website) {
+    parts.push(`website: ${JSON.stringify(poi.website)}`);
+  }
+  return `  { ${parts.join(", ")} },`;
+}
+
 function generatePoiFile(pois: PoiResult[]): string {
-  const grouped = new Map<string, PoiResult[]>();
+  const grouped = new Map<PoiCategory, PoiResult[]>();
 
   for (const poi of pois) {
     const list = grouped.get(poi.category) ?? [];
@@ -421,45 +452,10 @@ function generatePoiFile(pois: PoiResult[]): string {
     list.sort((a, b) => b.lat - a.lat || a.lon - b.lon);
   }
 
-  const categoryOrder = [
-    "shelter",
-    "water",
-    "food",
-    "supermarket",
-    "bakery",
-    "butcher",
-    "convenience",
-  ];
-
-  const constNameMap: Record<string, string> = {
-    shelter: "SHELTER_POIS",
-    water: "WATER_POIS",
-    food: "FOOD_POIS",
-    supermarket: "SUPERMARKET_POIS",
-    bakery: "BAKERY_POIS",
-    butcher: "BUTCHER_POIS",
-    convenience: "CONVENIENCE_POIS",
-  };
-
-  const sections = categoryOrder.map((cat) => {
+  const sections = CATEGORY_ORDER.map((cat) => {
     const items = grouped.get(cat) ?? [];
-    const constName = constNameMap[cat];
-
-    const entries = items
-      .map((poi) => {
-        const parts = [
-          `lat: ${poi.lat}`,
-          `lon: ${poi.lon}`,
-          `name: ${JSON.stringify(poi.name)}`,
-          `category: "${poi.category}"`,
-        ];
-        if (poi.openingHours) {
-          parts.push(`openingHours: ${JSON.stringify(poi.openingHours)}`);
-        }
-        return `  { ${parts.join(", ")} },`;
-      })
-      .join("\n");
-
+    const constName = CONST_NAME_MAP[cat];
+    const entries = items.map(formatPoiEntry).join("\n");
     return `export const ${constName}: PoiData[] = [\n${entries}\n];`;
   });
 
@@ -476,6 +472,17 @@ function generatePoiFile(pois: PoiResult[]): string {
 // Main
 // ---------------------------------------------------------------------------
 
+function printCategorySummary(pois: PoiResult[]): void {
+  const counts = new Map<string, number>();
+  for (const poi of pois) {
+    counts.set(poi.category, (counts.get(poi.category) ?? 0) + 1);
+  }
+  console.log("\nPOI counts by category:");
+  for (const [cat, count] of [...counts.entries()].sort()) {
+    console.log(`  ${cat}: ${count}`);
+  }
+}
+
 async function main(): Promise<void> {
   console.log("Reading GPX file...");
   const gpxContent = readFileSync(GPX_PATH, "utf-8");
@@ -486,16 +493,16 @@ async function main(): Promise<void> {
   const filterTrack = downsampleTrack(fullTrack, 50);
   console.log(`Downsampled to ${filterTrack.length} points for distance filter`);
 
-  // Split track into chunks for Overpass queries (500 points per chunk)
-  const boxes = splitTrackIntoChunks(fullTrack, 500, MAX_DISTANCE_METERS);
-  console.log(`Split track into ${boxes.length} bounding box chunks`);
-
-  console.log("Querying Overpass API...");
-  const elements = await fetchAllChunks(boxes, CATEGORY_QUERIES);
-  console.log(`Received ${elements.length} total elements from Overpass`);
+  // Single bounding box for the entire trail
+  const bbox = computeBoundingBox(fullTrack, MAX_DISTANCE_METERS);
+  console.log("Querying Overpass API (single request)...");
+  const elements = await fetchOverpass(
+    buildOverpassQuery(bbox, CATEGORY_QUERIES),
+  );
+  console.log(`Received ${elements.length} elements from Overpass`);
 
   const allPois = elementsToPois(elements);
-  console.log(`Mapped ${allPois.length} POIs from Overpass results`);
+  console.log(`Mapped ${allPois.length} POIs (after excluding closed/private)`);
 
   // Filter by precise distance to track
   const filteredPois = allPois.filter((poi) => {
@@ -509,15 +516,7 @@ async function main(): Promise<void> {
   const deduplicated = deduplicatePois(filteredPois);
   console.log(`${deduplicated.length} POIs after deduplication`);
 
-  // Print summary per category
-  const counts = new Map<string, number>();
-  for (const poi of deduplicated) {
-    counts.set(poi.category, (counts.get(poi.category) ?? 0) + 1);
-  }
-  console.log("\nPOI counts by category:");
-  for (const [cat, count] of [...counts.entries()].sort()) {
-    console.log(`  ${cat}: ${count}`);
-  }
+  printCategorySummary(deduplicated);
 
   const output = generatePoiFile(deduplicated);
   writeFileSync(OUTPUT_PATH, output, "utf-8");

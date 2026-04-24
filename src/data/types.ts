@@ -4,6 +4,7 @@ export interface PoiData {
   name: string;
   category: PoiCategory;
   openingHours?: string;
+  website?: string;
 }
 
 export type PoiCategory =

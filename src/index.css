@@ -452,6 +452,29 @@ body,
   color: var(--forest-muted);
 }
 
+.poi-popup__website {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--forest-muted);
+}
+
+.poi-popup__website-icon {
+  flex-shrink: 0;
+  color: var(--forest-muted);
+}
+
+.poi-popup__website a {
+  color: var(--forest-medium);
+  text-decoration: none;
+}
+
+.poi-popup__website a:hover {
+  text-decoration: underline;
+}
+
 .poi-popup__coords {
   display: flex;
   align-items: center;
