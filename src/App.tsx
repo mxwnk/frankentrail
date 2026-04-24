@@ -1,7 +1,17 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { TrailMap } from "./components/TrailMap";
+import type { TrailMapHandle } from "./components/TrailMap";
+import { ElevationProfile } from "./components/ElevationProfile";
+import { TrailProgress } from "./components/TrailProgress";
+import { StageList } from "./components/StageList";
 import { useGpxTrack } from "./hooks/useGpxTrack";
 import { useGeolocation } from "./hooks/useGeolocation";
+import { buildElevationData } from "./utils/elevationProfile";
+import { computeTrailProgress } from "./utils/trailProgress";
+import { buildStages } from "./utils/stages";
+import type { Stage } from "./utils/stages";
+import { STAGE_WAYPOINTS } from "./data/stages";
+import type { ElevationPoint } from "./utils/elevationProfile";
 import {
   SHELTER_POIS,
   WATER_POIS,
@@ -46,10 +56,29 @@ const DEFAULT_VISIBLE: PoiCategory[] = ["shelter", "water"];
 function App() {
   const { trackData, isLoading, error } = useGpxTrack(GPX_PATH);
   const { position, error: geoError } = useGeolocation();
+  const mapRef = useRef<TrailMapHandle>(null);
   const [visibleCategories, setVisibleCategories] = useState<Set<PoiCategory>>(
     new Set(DEFAULT_VISIBLE)
   );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isElevationOpen, setIsElevationOpen] = useState(false);
+  const [isStageListOpen, setIsStageListOpen] = useState(false);
+  const [hoverPoint, setHoverPoint] = useState<ElevationPoint | null>(null);
+
+  const elevationData = useMemo(
+    () => (trackData ? buildElevationData(trackData) : null),
+    [trackData],
+  );
+
+  const stages = useMemo(
+    () => (elevationData ? buildStages(STAGE_WAYPOINTS, elevationData.points) : []),
+    [elevationData],
+  );
+
+  const trailProgress = useMemo(() => {
+    if (!position || !elevationData) return null;
+    return computeTrailProgress(position.latitude, position.longitude, elevationData.points);
+  }, [position, elevationData]);
 
   const toggleCategory = (category: PoiCategory) => {
     setVisibleCategories((prev) => {
@@ -63,16 +92,36 @@ function App() {
     });
   };
 
+  const handleToggleElevation = useCallback(() => {
+    setIsElevationOpen((prev) => !prev);
+  }, []);
+
+  const handleHoverPoint = useCallback((point: ElevationPoint | null) => {
+    setHoverPoint(point);
+  }, []);
+
+  const handleToggleStageList = useCallback(() => {
+    setIsStageListOpen((prev) => !prev);
+  }, []);
+
+  const handleSelectStage = useCallback((stage: Stage) => {
+    mapRef.current?.fitStageBounds(stage);
+    setIsStageListOpen(false);
+  }, []);
+
   const activeCount = visibleCategories.size;
   const stableCategories = useMemo(() => visibleCategories, [visibleCategories]);
 
   return (
     <div className="app">
       <TrailMap
+        ref={mapRef}
         trackData={trackData}
         userPosition={position}
         pois={ALL_POIS}
         visibleCategories={stableCategories}
+        hoverPoint={hoverPoint}
+        stages={stages}
       />
 
       <header className="header">
@@ -131,6 +180,31 @@ function App() {
 
       {geoError && (
         <div className="toast toast--error">{geoError}</div>
+      )}
+
+      {trailProgress && elevationData && (
+        <TrailProgress
+          progress={trailProgress}
+          totalDistance={elevationData.stats.totalDistance}
+        />
+      )}
+
+      {stages.length > 0 && (
+        <StageList
+          stages={stages}
+          isOpen={isStageListOpen}
+          onToggle={handleToggleStageList}
+          onSelectStage={handleSelectStage}
+        />
+      )}
+
+      {elevationData && (
+        <ElevationProfile
+          elevationData={elevationData}
+          isOpen={isElevationOpen}
+          onToggle={handleToggleElevation}
+          onHoverPoint={handleHoverPoint}
+        />
       )}
 
       <div className="attribution-badge">

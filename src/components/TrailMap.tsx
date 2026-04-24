@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { FeatureCollection } from "geojson";
 import type { PoiData, PoiCategory } from "../data/types";
+import type { Stage } from "../utils/stages";
 
 const TRAIL_SOURCE_ID = "frankenweg-track";
 const TRAIL_LINE_ID = "frankenweg-trail-line";
@@ -75,17 +76,44 @@ interface UserPosition {
   accuracy: number;
 }
 
+interface HoverPoint {
+  lon: number;
+  lat: number;
+}
+
+export interface TrailMapHandle {
+  fitStageBounds: (stage: Stage) => void;
+}
+
 interface TrailMapProps {
   trackData: FeatureCollection | null;
   userPosition?: UserPosition | null;
   pois?: PoiData[];
   visibleCategories?: Set<PoiCategory>;
+  hoverPoint?: HoverPoint | null;
+  stages?: Stage[];
 }
 
-export function TrailMap({ trackData, userPosition, pois, visibleCategories }: TrailMapProps) {
+export const TrailMap = forwardRef<TrailMapHandle, TrailMapProps>(function TrailMap(
+  { trackData, userPosition, pois, visibleCategories, hoverPoint, stages },
+  ref,
+) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const poiMarkersRef = useRef<maplibregl.Marker[]>([]);
+  const hoverMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const stageMarkersRef = useRef<maplibregl.Marker[]>([]);
+
+  useImperativeHandle(ref, () => ({
+    fitStageBounds(stage: Stage) {
+      const map = mapRef.current;
+      if (!map) return;
+      const bounds = new maplibregl.LngLatBounds();
+      bounds.extend([stage.startPoint.lon, stage.startPoint.lat]);
+      bounds.extend([stage.endPoint.lon, stage.endPoint.lat]);
+      map.fitBounds(bounds, { padding: 100, duration: 800 });
+    },
+  }));
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -273,7 +301,74 @@ export function TrailMap({ trackData, userPosition, pois, visibleCategories }: T
     }
   }, [userPosition]);
 
+  // Elevation profile hover marker
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (!hoverPoint) {
+      hoverMarkerRef.current?.remove();
+      hoverMarkerRef.current = null;
+      return;
+    }
+
+    if (!hoverMarkerRef.current) {
+      const el = document.createElement("div");
+      el.className = "elevation-hover-marker";
+      hoverMarkerRef.current = new maplibregl.Marker({ element: el })
+        .setLngLat([hoverPoint.lon, hoverPoint.lat])
+        .addTo(map);
+    } else {
+      hoverMarkerRef.current.setLngLat([hoverPoint.lon, hoverPoint.lat]);
+    }
+  }, [hoverPoint]);
+
+  // Stage markers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    for (const marker of stageMarkersRef.current) {
+      marker.remove();
+    }
+    stageMarkersRef.current = [];
+
+    if (!stages || stages.length === 0) return;
+
+    // Collect unique waypoints (start of first stage + end of each stage)
+    const waypoints: Array<{ name: string; lon: number; lat: number; number: number }> = [];
+    waypoints.push({
+      name: stages[0].startName,
+      lon: stages[0].startPoint.lon,
+      lat: stages[0].startPoint.lat,
+      number: 0,
+    });
+    for (const stage of stages) {
+      waypoints.push({
+        name: stage.endName,
+        lon: stage.endPoint.lon,
+        lat: stage.endPoint.lat,
+        number: stage.number,
+      });
+    }
+
+    for (const wp of waypoints) {
+      const el = createStageMarkerElement(wp.name);
+      const marker = new maplibregl.Marker({ element: el })
+        .setLngLat([wp.lon, wp.lat])
+        .addTo(map);
+      stageMarkersRef.current.push(marker);
+    }
+  }, [stages]);
+
   return <div ref={mapContainerRef} className="trail-map" />;
+});
+
+function createStageMarkerElement(name: string): HTMLDivElement {
+  const el = document.createElement("div");
+  el.className = "stage-marker";
+  el.innerHTML = `<span class="stage-marker__label">${name}</span>`;
+  return el;
 }
 
 function createPoiMarkerElement(poi: PoiData): HTMLDivElement {

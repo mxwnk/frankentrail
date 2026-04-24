@@ -521,6 +521,433 @@ body,
   border-color: var(--forest-muted);
 }
 
+/* ── Trail progress badge ───────────────────────── */
+
+.trail-progress {
+  position: absolute;
+  top: calc(var(--header-height) + var(--safe-top) + 8px);
+  right: 16px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(250, 244, 232, 0.92);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--sandstone);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(42, 31, 20, 0.2);
+  font-family: var(--font-body);
+  animation: toast-in 0.4s ease-out;
+  max-width: 240px;
+}
+
+.trail-progress__bar-container {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: var(--sandstone-light);
+  border-radius: 2px;
+  overflow: visible;
+}
+
+.trail-progress__bar-fill {
+  height: 100%;
+  background: var(--wine);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.trail-progress__bar-marker {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  background: var(--wine);
+  border: 1.5px solid var(--parchment);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: left 0.5s ease;
+  box-shadow: 0 1px 3px rgba(42, 31, 20, 0.3);
+}
+
+.trail-progress__details {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--ink);
+}
+
+.trail-progress__stat {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.trail-progress__stat--off-trail {
+  color: var(--sandstone-dark);
+  font-weight: 400;
+}
+
+.trail-progress__separator {
+  color: var(--sandstone);
+  font-size: 10px;
+}
+
+.trail-progress__icon {
+  flex-shrink: 0;
+  color: var(--wine);
+}
+
+.trail-progress__stat--off-trail .trail-progress__icon {
+  color: var(--sandstone-dark);
+}
+
+/* ── Elevation hover marker ─────────────────────── */
+
+.elevation-hover-marker {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #c0392b;
+  border: 2.5px solid #faf4e8;
+  box-shadow: 0 2px 6px rgba(42, 31, 20, 0.4);
+  pointer-events: none;
+}
+
+/* ── Stage panel ───────────────────────────────── */
+
+.stage-panel {
+  position: absolute;
+  top: calc(var(--header-height) + var(--safe-top) + 8px);
+  left: 16px;
+  z-index: 6;
+}
+
+.stage-panel__toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--sandstone);
+  border-radius: 6px;
+  background: rgba(250, 244, 232, 0.92);
+  backdrop-filter: blur(6px);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(42, 31, 20, 0.2);
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stage-panel__toggle:hover {
+  background: var(--parchment);
+  box-shadow: 0 3px 12px rgba(42, 31, 20, 0.3);
+}
+
+.stage-panel__toggle:active {
+  transform: scale(0.97);
+}
+
+.stage-panel__toggle-icon {
+  transition: transform 0.2s ease;
+}
+
+.stage-panel__toggle-icon--open {
+  transform: rotate(90deg);
+}
+
+.stage-panel__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--sandstone-dark);
+  color: var(--parchment);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stage-panel__content {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 320px;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: rgba(250, 244, 232, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--sandstone);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(42, 31, 20, 0.3);
+  animation: dropdown-in 0.15s ease-out;
+}
+
+.stage-panel__list {
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+}
+
+/* ── Stage item ────────────────────────────────── */
+
+.stage-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+  transition: background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stage-item:hover {
+  background: rgba(212, 169, 106, 0.2);
+}
+
+.stage-item:active {
+  background: rgba(212, 169, 106, 0.3);
+}
+
+.stage-item__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stage-item__number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--sandstone-dark);
+  color: var(--parchment);
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.stage-item__route {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.stage-item__start,
+.stage-item__end {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stage-item__arrow {
+  flex-shrink: 0;
+  color: var(--sandstone-dark);
+}
+
+.stage-item__stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 30px;
+}
+
+.stage-item__stat {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sandstone-dark);
+}
+
+.stage-item__stat--ascent {
+  color: var(--forest);
+}
+
+.stage-item__stat--descent {
+  color: var(--wine);
+}
+
+/* ── Stage markers on map ──────────────────────── */
+
+.stage-marker {
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.stage-marker__label {
+  background: rgba(90, 26, 10, 0.85);
+  color: var(--parchment);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(42, 31, 20, 0.4);
+  letter-spacing: 0.3px;
+}
+
+/* ── Elevation panel ───────────────────────────── */
+
+.elevation-panel {
+  position: absolute;
+  bottom: calc(28px + var(--safe-bottom));
+  left: 0;
+  right: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.elevation-panel__toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--sandstone);
+  border-radius: 6px 6px 0 0;
+  background: rgba(250, 244, 232, 0.92);
+  backdrop-filter: blur(6px);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 -2px 8px rgba(42, 31, 20, 0.15);
+  transition: all 0.15s ease;
+  pointer-events: auto;
+  border-bottom: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.elevation-panel--open .elevation-panel__toggle {
+  border-radius: 6px 6px 0 0;
+}
+
+.elevation-panel__toggle:hover {
+  background: var(--parchment);
+}
+
+.elevation-panel__toggle-icon {
+  transition: transform 0.2s ease;
+}
+
+.elevation-panel__toggle-icon--open {
+  transform: rotate(180deg);
+}
+
+.elevation-panel__stats-inline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--sandstone-dark);
+  margin-left: 4px;
+}
+
+.elevation-panel__stat-separator {
+  color: var(--sandstone);
+  font-size: 10px;
+}
+
+.elevation-panel__content {
+  width: 100%;
+  background: rgba(250, 244, 232, 0.95);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--sandstone);
+  box-shadow: 0 -4px 16px rgba(42, 31, 20, 0.2);
+  pointer-events: auto;
+  animation: elevation-slide-up 0.2s ease-out;
+}
+
+@keyframes elevation-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.elevation-panel__chart {
+  width: 100%;
+  height: 160px;
+  padding: 0;
+}
+
+.elevation-panel__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.elevation-panel__stats {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 16px 10px;
+  border-top: 1px solid var(--sandstone-light);
+}
+
+.elevation-panel__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.elevation-panel__stat-label {
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--sandstone-dark);
+}
+
+.elevation-panel__stat-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.elevation-panel__stat-value--ascent {
+  color: var(--forest);
+}
+
+.elevation-panel__stat-value--descent {
+  color: var(--wine);
+}
+
 /* ── Responsive: Mobile ────────────────────────── */
 
 @media (max-width: 600px) {
@@ -550,5 +977,41 @@ body,
     bottom: calc(4px + var(--safe-bottom));
     font-size: 10px;
     padding: 3px 8px;
+  }
+
+  .elevation-panel__chart {
+    height: 120px;
+  }
+
+  .elevation-panel__stats {
+    gap: 10px;
+    padding: 6px 12px 8px;
+  }
+
+  .elevation-panel__stat-label {
+    font-size: 9px;
+  }
+
+  .elevation-panel__stat-value {
+    font-size: 12px;
+  }
+
+  .trail-progress {
+    right: 10px;
+    max-width: 200px;
+    padding: 6px 10px;
+  }
+
+  .trail-progress__details {
+    font-size: 10px;
+  }
+
+  .stage-panel {
+    left: 10px;
+  }
+
+  .stage-panel__content {
+    width: calc(100vw - 20px);
+    max-height: 50vh;
   }
 }
