@@ -102,6 +102,7 @@ export const SHELTER_POIS: PoiData[] = [
   { lat: 50.118656, lon: 11.395542, name: "Buswartehäuschen", category: "shelter" },
   { lat: 50.117633, lon: 11.067682, name: "Victor-von-Scheffel-Blick", category: "shelter" },
   { lat: 50.116992, lon: 11.436504, name: "Schutzhütte", category: "shelter" },
+  { lat: 50.114003, lon: 11.081494, name: "Karl Grohsschmiedt Hütte", category: "shelter" },
   { lat: 50.109886, lon: 11.451998, name: "Schutzhütte", category: "shelter" },
   { lat: 50.109677, lon: 11.451004, name: "Schutzhütte", category: "shelter" },
   { lat: 50.107878, lon: 11.456805, name: "Schutzhütte", category: "shelter" },
@@ -1313,7 +1314,7 @@ export const SUPERMARKET_POIS: PoiData[] = [
   { lat: 48.874441, lon: 10.728774, name: "Edeka", category: "supermarket", openingHours: "Mo-Sa 07:00-20:00" },
   { lat: 48.873596, lon: 10.710246, name: "Lidl", category: "supermarket", openingHours: "Mo-Sa 07:00-20:00" },
   { lat: 48.872677, lon: 10.710907, name: "REWE", category: "supermarket", openingHours: "Mo-Sa 07:00-20:00" },
-  { lat: 48.872315, lon: 10.72689, name: "Netto Marken-Discount", category: "supermarket", openingHours: "Mo-Sa 07:00-20:00" },
+  { lat: 48.872296, lon: 10.726876, name: "Netto Marken-Discount", category: "supermarket", openingHours: "Mo-Sa 07:00-20:00" },
   { lat: 48.869319, lon: 10.725486, name: "Norma", category: "supermarket" },
   { lat: 48.781211, lon: 10.695002, name: "Netto Marken-Discount", category: "supermarket", openingHours: "Mo-Sa 07:00-20:00; PH off" },
 ];
