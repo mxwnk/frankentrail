@@ -110,13 +110,12 @@ export function TrailMap({ trackData, userPosition, pois, visibleCategories }: T
             type: "raster",
             source: "topo-tiles",
             minzoom: 0,
-            maxzoom: 17,
           },
         ],
       },
       center: FRANKENWEG_CENTER,
       zoom: DEFAULT_ZOOM,
-      maxZoom: 17,
+      maxZoom: 19,
       pitch: 0,
     });
 
